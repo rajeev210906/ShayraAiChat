@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Welcome To ShayraAi</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: left;
+      }
+     .chat-container {
+        max-width: 400px;
+        margin: 10px auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        height: 600px;
+        background-image: url(https://i.pinimg.com/736x/7d/44/82/7d44826afeb30f61961b61079d470d6a.jpg);
+        background-position: center;
+        background-size: contain;
+        background-repeat: no-repeat;
+      }
+     .message-log {
+        flex: 1;
+        overflow-y: auto;
+        padding: 10px;
+      }
+     .message {
+        margin-bottom: 10px;
+        padding: 10px;
+        border-bottom: 1px solid #ccc;
+      }
+     .message:last-child {
+        border-bottom: none;
+      }
+     .sent {
+        background-color: #5cf4ff;
+        padding-left: 40px;
+        border-radius: 10px 10px 10px 0;
+        text-align: right;
+      }
+     .received {
+        background-color: #a1ff72;
+        padding-right: 40px;
+        border-radius: 10px 10px 0 10px;
+      }
+     .text {
+        font-size: 16px;
+      }
+     .timestamp {
+        font-size: 12px;
+        color: #999;
+        text-align: right;
+      }
+     .input-container {
+        padding: 10px;
+        border-top: 1px solid #ccc;
+        display: flex;
+        justify-content: space-between;
+      }
+     .input-field {
+        width: calc(100% - 100px);
+        padding: 10px;
+        font-size: 16px;
+        border: none;
+        border-radius: 10px;
+      }
+     .send-button {
+        background-color: #4CAF50;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        margin-right: 10px;
+        margin-left: 8px;
+      }
+     .send-button:hover {
+        background-color: #3e8e41;
+      }
+     .voice-button {
+        background: #78f;
+        color: whiteSmoke;
+        padding: 10px 20px;
+        font-size: 22px;
+        font-weight: 600;
+        display: block;
+        box-shadow: 0 3px 10px #a7f;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+      }
+     .voice-button:hover {
+        background: #6a7;
+      }
+     .nav-bar {
+        background-color: #333;
+        color: #fff;
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+      }
+     .nav-bar a {
+        color: #fff;
+        text-decoration: none;
+        margin-right: 20px;
+      }
+     .nav-bar a:hover {
+        color: #ccc;
+      }
+     .shayra {
+        text-align: center;
+        color: red;
+        font-size: 30px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        
+      }
+     .about-window {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #fff;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="nav-bar">
+      <a href="#" id="home-link">Home</a>
+      <a href="#" id="about-link">About</a>
+      <a href="#" id="contact-link">Contact</a>
+    </nav>
+    <h1 class="shayra">Welcome To ShayraAi Chat</h1>
+    <div class="chat-container">
+      <div class="message-log"></div>
+      <div class="input-container">
+        <input id="message-input" type="text" class="input-field" placeholder="Type a message..." />
+        <button id="send-button" class="send-button">Send</button>
+        <button id="voice-button" class="voice-button">
+          <i class="fa fa-microphone" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+    <div class="about-window">
+      <h2>About ShayraAi</h2>
+      <p>Made with ❤️ by Rajeev Ranjan.<br><br>
+
+        This Ai Model Is Powered By Google Gemini Pro Model.<br><br>
+
+        Thank you For Using. <br><br>
+
+        You Can Find Its Open Source Code On Github. With Instructions.<br><br>
+
+        <a href="https://github.com/rajeevranjan/ShayraAi">Click Here</a>
+      </p>
+      <button id="close-about-button">Close</button>
+    </div>
+
+    <script>
+      const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recorder = new SpeechRecognition();
+      const messageLog = document.querySelector('.message-log');
+      const messageInput = document.getElementById('message-input');
+      const sendButton = document.getElementById('send-button');
+      const voiceButton = document.getElementById('voice-button');
+      const aboutLink = document.getElementById('about-link');
+      const aboutWindow = document.querySelector('.about-window');
+      const closeAboutButton = document.getElementById('close-about-button');
+
+      recorder.onstart = () => {
+        voiceButton.innerHTML =
+          '<i class="fa fa-microphone-slash" aria-hidden="true"></i>';
+      };
+
+      recorder.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        messageInput.value = transcript;
+        if (messageInput.value.trim()!== '') {
+          sendButton.click();
+        }
+      };
+
+      recorder.onend = () => {
+        voiceButton.innerHTML = '<i class="fa fa-microphone" aria-hidden="true"></i>';
+      };
+
+      function startVoice() {
+        recorder.start();
+      }
+
+      sendButton.addEventListener('click', async () => {
+        const message = messageInput.value;
+        if (message.trim()!== '') {
+          // send message to server
+          const response = await fetch('/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `message=${message}`,
+          });
+          const responseData = await response.json();
+
+          // render sent message
+          const sentMessageHTML = `
+            <div class="message sent">
+              <div class="text">${message}<span class="You"> : You </span></div>
+              <div class="timestamp">${formatTimestamp(new Date())}</div>
+            </div>
+          `;
+          messageLog.innerHTML += sentMessageHTML;
+
+          // render response from Shayra
+          const responseMessageHTML = `
+            <div class="message received">
+              <div class="text"><span class="shayraAi">Shayra: </span>${responseData.response}</div>
+              <div class="timestamp">${formatTimestamp(new Date())}</div>
+            </div>
+          `;
+          messageLog.innerHTML += responseMessageHTML;
+
+          // scroll to bottom of message log
+          scrollToBottom();
+
+          // clear input field
+          messageInput.value = '';
+        }
+      });
+
+      messageInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          sendButton.click();
+        }
+      });
+
+      aboutLink.addEventListener('click', (event) => {
+        event.preventDefault();
+        aboutWindow.style.display = 'block';
+      });
+
+      closeAboutButton.addEventListener('click', () => {
+        aboutWindow.style.display = 'none';
+      });
+
+      function formatTimestamp(date) {
+        const hours = date.getHours();
+        const minutes = date.getMinutes();
+        return `${hours}:${minutes < 10? '0' + minutes : minutes}`;
+      }
+
+      function scrollToBottom() {
+        messageLog.scrollTop = messageLog.scrollHeight;
+      }
+
+      voiceButton.addEventListener('click', startVoice);
+    </script>
+  </body>
+</html>
